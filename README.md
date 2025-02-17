@@ -1,55 +1,72 @@
 Streamlit app Docker Image (Linux)
 1. Update packages
+
 sudo yum update -y
 
 2. Install Docker
+
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
 3. Start & enable Docker service
+
 sudo service docker start   # Amazon Linux 2
 sudo systemctl enable docker  # Enable Docker on startup
 
 4. Add user to Docker group (Amazon Linux uses 'ec2-user')
+
 sudo usermod -aG docker ec2-user
 
 5. Refresh group permissions (apply without logout)
+
 newgrp docker
 
 6. Clone your GitHub project
+
 git clone "your-project"
 
 7. Build Docker image
+
 docker build -t entbappy/stapp:latest .
 
 8. Check all images
+
 docker images -a
 
 9. Run the container on port 8501 in detached mode
+
 docker run -d -p 8501:8501 entbappy/stapp
 
 10. Check running containers
+
 docker ps
 
 11. Stop a running container (replace `container_id` with actual ID)
+
 docker stop container_id
 
 12. Remove all stopped containers
+
 docker rm $(docker ps -a -q)
 
 13. Log in to Docker Hub
+
 docker login
 
 14. Push the image to Docker Hub
+
 docker push entbappy/stapp:latest
 
 15. Check images again
+
 docker images -a
 
 16. Remove image from EC2
+
 docker rmi entbappy/stapp:latest
 
 17. Pull image from Docker Hub
+
 docker pull entbappy/stapp
 
 
