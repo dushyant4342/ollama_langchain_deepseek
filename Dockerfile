@@ -1,7 +1,7 @@
 # Use Amazon Linux 2 as the base image
 FROM amazonlinux:2
 
-# Install necessary development tools, including gzip
+# Install required packages including OpenSSL development libraries
 RUN yum install -y \
     tar \
     gzip \
@@ -13,14 +13,14 @@ RUN yum install -y \
     zlib-devel \
     make
 
-# Download and install Python 3.10.14
+# Download and install Python 3.10.14 with SSL support
 RUN cd /usr/src && \
     wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz && \
     tar xzf Python-3.10.14.tgz && \
     cd Python-3.10.14 && \
-    ./configure --enable-optimizations && \
+    ./configure --enable-optimizations --with-openssl=/usr/include/openssl && \
     make altinstall
-    
+
 # Ensure pip is up to date
 RUN /usr/local/bin/python3.10 -m ensurepip --upgrade && \
     /usr/local/bin/python3.10 -m pip install --upgrade pip
