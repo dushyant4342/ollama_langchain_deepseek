@@ -1,32 +1,44 @@
 FROM amazonlinux:2
 
-# Install required packages including OpenSSL development files, tar, gzip, etc.
-RUN yum install -y \
+# Install required packages including OpenSSL development files
+RUN yum update -y && yum install -y \
     tar \
     gzip \
     wget \
     gcc \
+    openssl \
     openssl-devel \
     bzip2-devel \
     libffi-devel \
     zlib-devel \
-    make
+    make \
+    && yum clean all
 
-# Set environment variables so the compiler can find OpenSSL
+# Set environment variables for SSL configuration
 ENV CPPFLAGS="-I/usr/include/openssl"
 ENV LDFLAGS="-L/usr/lib64"
+ENV LD_LIBRARY_PATH="/usr/lib64:$LD_LIBRARY_PATH"
 
-# Download and install Python 3.10.14 with SSL support
+# Download and install Python 3.10.14 with explicit SSL configuration
 RUN cd /usr/src && \
     wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz && \
     tar xzf Python-3.10.14.tgz && \
     cd Python-3.10.14 && \
-    ./configure --enable-optimizations --with-openssl=/usr && \
-    make altinstall
+    ./configure \
+        --enable-optimizations \
+        --with-openssl=/usr \
+        --with-ensurepip=install \
+        LDFLAGS="-Wl,-rpath,/usr/lib64" && \
+    make -j $(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.10.14*
 
-# Upgrade pip using the newly installed Python
-RUN /usr/local/bin/python3.10 -m ensurepip --upgrade && \
-    /usr/local/bin/python3.10 -m pip install --upgrade pip
+# Verify SSL is working
+RUN /usr/local/bin/python3.10 -c "import ssl; print(ssl.OPENSSL_VERSION)"
+
+# Upgrade pip
+RUN /usr/local/bin/python3.10 -m pip install --upgrade pip
 
 # Copy and install Python dependencies
 COPY requirements.txt /app/requirements.txt
