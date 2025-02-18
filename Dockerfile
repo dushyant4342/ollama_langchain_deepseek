@@ -1,27 +1,36 @@
 FROM amazonlinux:2
 
-# Install Python 3.10 from Amazon repos
-RUN amazon-linux-extras enable python3.10 && \
-    yum clean metadata && \
-    yum -y install python3.10 python3.10-devel
-
-# Install development tools and SSL
-RUN yum -y install \
+# Install necessary dependencies
+RUN yum update -y && \
+    yum groupinstall -y "Development Tools" && \
+    yum install -y \
     gcc \
-    openssl \
+    gcc-c++ \
+    make \
+    wget \
+    tar \
+    bzip2 \
+    bzip2-devel \
+    xz \
+    xz-devel \
+    zlib-devel \
     openssl-devel \
-    libffi-devel \
-    && yum clean all
+    libffi-devel
 
-# Create symlinks
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
-    alternatives --install /usr/bin/pip3 pip3 /usr/bin/pip3.10 1
+# Download and install Python 3.10
+RUN wget https://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz && \
+    tar xvf Python-3.10.13.tgz && \
+    cd Python-3.10.13 && \
+    ./configure --enable-optimizations && \
+    make -j$(nproc) && \
+    make altinstall && \
+    ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -s /usr/local/bin/pip3.10 /usr/bin/pip3
 
-# Verify and install pip
-RUN python3 -m ensurepip --upgrade && \
-    pip3 install --upgrade pip
+# Verify Python installation
+RUN python3 --version && pip3 --version
 
-# Copy and install requirements
+# Copy and install dependencies
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
 RUN pip3 install -r requirements.txt
