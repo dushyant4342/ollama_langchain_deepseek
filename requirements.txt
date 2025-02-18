@@ -2,5 +2,6 @@ streamlit
 langchain
 #langchain_core
 #langchain_community
-langchain_ollama
+#langchain_ollama
+git+https://github.com/ollama/langchain-ollama.git@main#egg=langchain_ollama
 pdfplumber
