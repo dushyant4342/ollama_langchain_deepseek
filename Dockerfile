@@ -2,7 +2,7 @@
 FROM amazonlinux:2
 
 # Install dependencies
-RUN yum install -y python3 python3-pip git tar && \
+RUN yum install -y python3 python3-pip git tar gzip && \
     python3 -m pip install --upgrade pip  # This ensures upgrading pip using the Python package manager
 
 # Install Ollama
