@@ -29,8 +29,9 @@ RUN cd /tmp && \
     make install && \
     cd .. && \
     rm -rf Python-3.10.14* && \
-    ln -s /usr/local/bin/python3.10 /usr/local/bin/python3 && \
-    ln -s /usr/local/bin/pip3.10 /usr/local/bin/pip3
+    rm -f /usr/local/bin/python3 /usr/local/bin/pip3 && \
+    ln -sf /usr/local/bin/python3.10 /usr/local/bin/python3 && \
+    ln -sf /usr/local/bin/pip3.10 /usr/local/bin/pip3
 
 # Upgrade pip
 RUN python3 -m pip install --upgrade pip
