@@ -1,17 +1,35 @@
 # Use Amazon Linux base image
 FROM amazonlinux:2
 
-# Install dependencies
-RUN yum install -y python3 python3-pip git tar gzip && \
-    python3 -m pip install --upgrade pip  # This ensures upgrading pip using the Python package manager
+# Install development tools and dependencies
+RUN yum groupinstall -y "Development Tools" && \
+    yum install -y \
+    gcc \
+    openssl11 \
+    openssl11-devel \
+    bzip2-devel \
+    libffi-devel \
+    wget \
+    make \
+    tar \
+    gzip
 
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Download and install Python 3.10.14
+RUN cd /usr/src && \
+    wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz && \
+    tar xzf Python-3.10.14.tgz && \
+    cd Python-3.10.14 && \
+    ./configure --enable-optimizations --with-openssl=/usr/include/openssl11 && \
+    make altinstall
+
+# Ensure pip is up to date
+RUN /usr/local/bin/python3.10 -m ensurepip --upgrade && \
+    /usr/local/bin/python3.10 -m pip install --upgrade pip
 
 # Install Python dependencies
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-RUN pip3 install -r requirements.txt
+RUN /usr/local/bin/python3.10 -m pip install -r requirements.txt
 
 # Copy app code
 COPY . /app
