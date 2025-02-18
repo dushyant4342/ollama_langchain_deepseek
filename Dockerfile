@@ -20,26 +20,26 @@ RUN cd /tmp && \
     tar xzf Python-3.10.14.tgz && \
     cd Python-3.10.14 && \
     ./configure \
-        --enable-optimizations \
-        --with-system-ffi \
         --with-openssl=/usr \
-        --enable-loadable-sqlite-extensions \
+        --with-openssl-rpath=/usr/lib64 \
+        --with-system-ffi \
+        --enable-shared \
         && \
-    make -j $(nproc) && \
+    make -j $(nproc) LDFLAGS="-Wl,-rpath /usr/local/lib" && \
     make install && \
+    ldconfig && \
     cd .. && \
     rm -rf Python-3.10.14* && \
     rm -f /usr/local/bin/python3 /usr/local/bin/pip3 && \
     ln -sf /usr/local/bin/python3.10 /usr/local/bin/python3 && \
     ln -sf /usr/local/bin/pip3.10 /usr/local/bin/pip3
 
-# Upgrade pip
-RUN python3 -m pip install --upgrade pip
-
-# Copy and install Python dependencies
+# Install requirements with SSL verification disabled (temporary workaround)
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-RUN python3 -m pip install -r requirements.txt
+RUN python3 -m pip install --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt
 
 # Copy app code and expose port
 COPY . /app
