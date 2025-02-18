@@ -1,5 +1,5 @@
 # Use Amazon Linux base image
-FROM amazonlinux:latest
+FROM amazonlinux:2
 
 # Install dependencies
 RUN yum install -y python3 python3-pip git && \
