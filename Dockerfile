@@ -1,17 +1,18 @@
-# Use Amazon Linux base image
+# Use Amazon Linux 2 as the base image
 FROM amazonlinux:2
 
-# Install system dependencies
+# Install tar and other necessary development tools and libraries
 RUN yum install -y \
+    tar \
     gcc \
     openssl-devel \
     bzip2-devel \
     libffi-devel \
     zlib-devel \
-    make \
-    wget
+    wget \
+    make
 
-# Install Python 3.10.14
+# Download and install Python 3.10.14
 RUN cd /usr/src && \
     wget https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz && \
     tar xzf Python-3.10.14.tgz && \
@@ -19,11 +20,9 @@ RUN cd /usr/src && \
     ./configure --enable-optimizations && \
     make altinstall
 
-# Upgrade pip
-RUN /usr/local/bin/python3.10 -m pip install --upgrade pip
-
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
+# Ensure pip is up to date
+RUN /usr/local/bin/python3.10 -m ensurepip --upgrade && \
+    /usr/local/bin/python3.10 -m pip install --upgrade pip
 
 # Install Python dependencies
 COPY requirements.txt /app/requirements.txt
@@ -33,8 +32,8 @@ RUN /usr/local/bin/python3.10 -m pip install -r requirements.txt
 # Copy application code
 COPY . /app
 
-# Expose Streamlit port
+# Expose the Streamlit port
 EXPOSE 8501
 
-# Start Ollama & Streamlit
-CMD ollama serve & streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+# Start Ollama and Streamlit
+CMD ollama serve & /usr/local/bin/python3.10 -m streamlit run app.py --server.port=8501 --server.address=0.0.0.0
