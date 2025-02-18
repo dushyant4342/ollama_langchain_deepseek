@@ -6,11 +6,13 @@ sudo yum update -y
 2. Install Docker
 
 curl -fsSL https://get.docker.com -o get-docker.sh
+
 sudo sh get-docker.sh
 
 3. Start & enable Docker service
 
 sudo service docker start   # Amazon Linux 2
+
 sudo systemctl enable docker  # Enable Docker on startup
 
 4. Add user to Docker group (Amazon Linux uses 'ec2-user')
