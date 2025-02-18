@@ -11,7 +11,7 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 # Install Python dependencies
 COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-RUN pip3 install --no-cache-dir -r requirements.txt  # Use --no-cache-dir to avoid caching issues
+RUN pip3 install -r requirements.txt
 
 # Copy app code
 COPY . /app
