@@ -1,15 +1,16 @@
 # Use Amazon Linux 2 as the base image
 FROM amazonlinux:2
 
-# Install tar and other necessary development tools and libraries
+# Install necessary development tools, including gzip
 RUN yum install -y \
     tar \
+    gzip \
+    wget \
     gcc \
     openssl-devel \
     bzip2-devel \
     libffi-devel \
     zlib-devel \
-    wget \
     make
 
 # Download and install Python 3.10.14
@@ -19,7 +20,7 @@ RUN cd /usr/src && \
     cd Python-3.10.14 && \
     ./configure --enable-optimizations && \
     make altinstall
-
+    
 # Ensure pip is up to date
 RUN /usr/local/bin/python3.10 -m ensurepip --upgrade && \
     /usr/local/bin/python3.10 -m pip install --upgrade pip
