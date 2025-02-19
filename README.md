@@ -1,4 +1,4 @@
-Streamlit app Docker Image (Linux2 AMI)
+Streamlit app Docker Image (Linux2 AMI on EC2)
 # 1. Update packages
 
 sudo yum update -y
@@ -137,41 +137,69 @@ docker exec -it deepseek_container ps aux | grep ollama
 
 
 
-│── 📄 Dockerfile
-touch Dockerfile
-nano Dockerfile
-Paste
 
-# Use Amazon Linux base image
+#Dockerfile
+│── 📄 Dockerfile
+
+touch Dockerfile
+
+nano Dockerfile
+
+
+#Paste (Use Amazon Linux base image)
+
 FROM amazonlinux:latest
+
 # Install dependencies
+
 RUN yum install -y python3 python3-pip git && \
     pip3 install --upgrade pip
+
 # Install Ollama
+
 RUN curl -fsSL https://ollama.com/install.sh | sh
+
 # Install Python dependencies
+
 COPY requirements.txt /app/requirements.txt
+
 WORKDIR /app
+
 RUN pip3 install -r requirements.txt
+
 # Copy app code
+
 COPY . /app
 
-
 # Start Ollama & Streamlit
+
 CMD ollama serve & streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+
 Save and exit (if using nano, press Ctrl + X → Y → Enter).
 
-│── 📄 .dockerignore
+
+
+#Dockerignore
+#│── 📄 .dockerignore
 
 touch .dockerignore
+
 nano .dockerignore
+
 Paste
+
 __pycache__/
+
 *.pyc
+
 *.pyo
+
 *.log
+
 .env
+
 venv/
+
 Save and exit (if using nano, press Ctrl + X → Y → Enter).
 
 
