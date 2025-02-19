@@ -1,7 +1,7 @@
 FROM amazonlinux:2023
 
 # Install dependencies
-RUN dnf install -y python3.11 python3.11-devel curl tar --allowerasing && \
+RUN dnf install -y python3.11 python3.11-devel curl tar gzip --allowerasing && \
     alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
     python3 -m ensurepip --default-pip && \
     python3 -m pip install --upgrade pip
