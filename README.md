@@ -140,7 +140,7 @@ docker exec -it deepseek_container ps aux | grep ollama
 
 # Dockerfile
 
-│── 📄 Dockerfile
+│── 📄 open terminal and run below command and paste 
 
 touch Dockerfile
 
@@ -182,7 +182,7 @@ Save and exit (if using nano, press Ctrl + X → Y → Enter).
 
 # Dockerignore
 
-#│── 📄 .dockerignore
+#│── 📄 open terminal and run below command and paste 
 
 touch .dockerignore
 
