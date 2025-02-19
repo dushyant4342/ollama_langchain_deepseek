@@ -1,128 +1,146 @@
-Streamlit app Docker Image (Linux)
-1. Update packages
-
+Streamlit app Docker Image (Linux2 AMI)
+# 1. Update packages
 sudo yum update -y
 
-2. Install Docker
+#Install GIt
+sudo yum install git -y
 
-curl -fsSL https://get.docker.com -o get-docker.sh
 
-sudo sh get-docker.sh
+Other dependencies are installed inside docker
+#Install Ollama and Deepseek in the Docker file
+#curl -fsSL https://ollama.com/install.sh | sh
+#ollama pull deepseek-r1:1.5b
+#ollama --version
+#which ollama
+l#s ~/.ollama/
+streamlit
+python
+langchain etc
 
-3. Start & enable Docker service
 
+# 2. Install Docker
+
+sudo yum install -y docker (worked)
+docker --version
+Docker version 25.0.6, build 32b99dd
+#curl -fsSL https://get.docker.com -o get-docker.sh
+#sudo sh get-docker.sh
+
+# 3. Start & enable Docker service
 sudo service docker start   # Amazon Linux 2
-
 sudo systemctl enable docker  # Enable Docker on startup
-
-4. Add user to Docker group (Amazon Linux uses 'ec2-user')
-
+ 
+# 4. Add user to Docker group (Amazon Linux uses 'ec2-user')
 sudo usermod -aG docker ec2-user
 
-5. Refresh group permissions (apply without logout)
-
+# 5. Refresh group permissions (apply without logout)
 newgrp docker
 
-6. Clone your GitHub project
-
+# 6. Clone your GitHub project
 git clone "your-project"
 
-7. Build Docker image
+git clone https://github.com/dushyant4342/ollama_langchain_deepseek.git
 
-docker build -t entbappy/stapp:latest .
+cd ollama_langchain_deepseek
 
-8. Check all images
+# 7. Build Docker image
+#docker build -t entbappy/stapp:latest .  
 
+docker build -t dushyant1334/deepseekr115b:latest .
+(This command will build the Docker image with the tag dushyant1334/deepseekr115b:latest using the current directory (the .).
+
+# 8. Check all images
 docker images -a
 
-9. Run the container on port 8501 in detached mode
+REPOSITORY                   TAG       IMAGE ID       CREATED         SIZE
+dushyant1334/deepseekr115b   latest    b5d6868be76a   3 minutes ago   5.17GB
 
-docker run -d -p 8501:8501 entbappy/stapp
+# 9. Run the container on port 8501 in detached mode
+#docker run -d -p 8501:8501 entbappy/stapp
+docker run -d -p 8501:8501 dushyant1334/deepseekr115b:latest
+#docker run -d -p 8501:8501 --name deepseek_app dushyant1334/deepseekr115b:latest
+#docker run -d -p 8501:8501 -p 11434:11434 --name deepseek_container dushyant1334/deepseekr115b
 
-10. Check running containers
-
+# 10. Check running containers
 docker ps
+docker logs <container_name>
 
-11. Stop a running container (replace `container_id` with actual ID)
 
+# 11. Stop a running container (replace `container_id` with actual ID) - it will stop website
 docker stop container_id
 
-12. Remove all stopped containers
-
+# 12. Remove all stopped containers
 docker rm $(docker ps -a -q)
+docker rmi -f $(docker images -q) #Delete all docker images
 
-13. Log in to Docker Hub
-
+# 13. Log in to Docker Hub
 docker login
 
-14. Push the image to Docker Hub
+# 14. Push the image to Docker Hub
+#docker push entbappy/stapp:latest
+docker push dushyant1334/deepseekr115b:latest
 
-docker push entbappy/stapp:latest
-
-15. Check images again
-
+# 15. Check images again
 docker images -a
 
-16. Remove image from EC2
+# 16. Remove image from EC2
+#docker rmi entbappy/stapp:latest
+docker rmi dushyant1334/deepseekr115b
 
-docker rmi entbappy/stapp:latest
-
-17. Pull image from Docker Hub
-
-docker pull entbappy/stapp
-
-
-
-🔹 Key Differences Between Ubuntu & Amazon Linux
-Command     	    Ubuntu	            AmazonLinux
-Update packages	sudo apt-get update -y	sudo yum update -y
-Install Docker	apt-get install docker.io -y	yum install docker -y (or via get-docker.sh)
-Start Docker	systemctl start docker	service docker start
-Enable Docker on Boot	systemctl enable docker	systemctl enable docker
-Default User	ubuntu	ec2-user
+# 17. Pull image from Docker Hub
+#docker pull entbappy/stapp
+docker pull dushyant1334/deepseekr115b
+docker run -d -p 8501:8501 dushyant1334/deepseekr115b:latest
 
 
-Streamlit app Docker Image (Ubuntu)
 
-1. Login with your AWS console and launch an EC2 instance
+docker stop deepseek_container
+docker rm $(docker ps -a -q)
 
-2. Run the following commands
 
-Note: Do the port mapping to this port:- 8501
-sudo apt-get update -y
+Run Inside Container
+docker exec -it deepseek_container ps aux | grep streamlit —> check if streamlit is running
+docker exec -it deepseek_container streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+ docker exec -it deepseek_container ollama serve
+docker exec -it deepseek_container ps aux | grep ollama
 
-sudo apt-get upgrade
 
-#Install Docker
 
-curl -fsSL https://get.docker.com -o get-docker.sh
+│── 📄 Dockerfile
+touch Dockerfile
+nano Dockerfile
+Paste
 
-sudo sh get-docker.sh
+# Use Amazon Linux base image
+FROM amazonlinux:latest
+# Install dependencies
+RUN yum install -y python3 python3-pip git && \
+    pip3 install --upgrade pip
+# Install Ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+# Install Python dependencies
+COPY requirements.txt /app/requirements.txt
+WORKDIR /app
+RUN pip3 install -r requirements.txt
+# Copy app code
+COPY . /app
 
-sudo usermod -aG docker ubuntu
 
-newgrp docker
+# Start Ollama & Streamlit
+CMD ollama serve & streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+Save and exit (if using nano, press Ctrl + X → Y → Enter).
 
-git clone "your-project"
+│── 📄 .dockerignore
 
-docker build -t entbappy/stapp:latest . 
+touch .dockerignore
+nano .dockerignore
+Paste
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.env
+venv/
+Save and exit (if using nano, press Ctrl + X → Y → Enter).
 
-docker images -a  (check all images)
 
-docker run -d -p 8501:8501 entbappy/stapp   ######(Run this image, port mapping, d mode which will run it all the time)
-
-docker ps  (check container running)
-
-docker stop container_id
-
-docker rm $(docker ps -a -q) (delete all containers)
-
-docker login 
-
-docker push entbappy/stapp:latest (push image to docker hub from Ec2)
-
-docker images -a (check all images)
-
-docker rmi entbappy/stapp:latest (remove repo from ec2 & pull from docker hub)
-
-docker pull entbappy/stapp
