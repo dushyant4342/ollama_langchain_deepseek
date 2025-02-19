@@ -72,7 +72,7 @@ with st.sidebar:
 
 llm_engine=ChatOllama(
     model=selected_model,
-    base_url="http://0.0.0.0:11434"
+    base_url="http://3.110.103.221:11434",  
     temperature=0.3
 
 )
