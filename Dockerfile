@@ -12,9 +12,6 @@ RUN python3 --version && python3 -m pip --version
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull the DeepSeek model
-RUN ollama serve & sleep 5 && ollama pull deepseek-r1:1.5b
-
 # Set the working directory
 WORKDIR /app
 
@@ -25,8 +22,24 @@ RUN python3 -m pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Expose port for Streamlit
-EXPOSE 8501
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+# Start Ollama in the background\n\
+/root/.ollama/bin/ollama serve &\n\
+# Wait for Ollama to start\n\
+sleep 10\n\
+# Pull the model if not already present\n\
+/root/.ollama/bin/ollama pull deepseek-r1:1.5b\n\
+# Start Streamlit\n\
+python3 -m streamlit run app.py --server.port=8501 --server.address=0.0.0.0\n\
+' > /app/start.sh
 
-# Start Ollama and Streamlit
-CMD /root/.ollama/bin/ollama serve & python3 -m streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+# Make the startup script executable
+RUN chmod +x /app/start.sh
+
+# Expose ports
+EXPOSE 8501
+EXPOSE 11434
+
+# Set the entrypoint to our startup script
+ENTRYPOINT ["/app/start.sh"]
