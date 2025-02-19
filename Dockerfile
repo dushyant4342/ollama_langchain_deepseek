@@ -13,7 +13,7 @@ RUN python3 --version && python3 -m pip --version
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Pull the DeepSeek model
-RUN /root/.ollama/bin/ollama pull deepseek-r1:1.5b
+RUN ollama pull deepseek-r1:1.5b
 
 # Set the working directory
 WORKDIR /app
