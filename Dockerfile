@@ -1,3 +1,4 @@
+# Use Amazon Linux base image
 FROM amazonlinux:2023
 
 # Install dependencies
